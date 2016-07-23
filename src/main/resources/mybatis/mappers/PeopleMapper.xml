@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+
+<mapper namespace="PeopleMapper">
+
+    <sql id="peopleColumns">
+        id,
+        name,
+        age
+    </sql>
+
+    <resultMap id="peopleResultMap" type="People">
+        <id property="id" column="id" />
+        <result property="name" column="name"/>
+        <result property="age" column="age"/>
+    </resultMap>
+
+    <select id="selectPeopleById" resultType="People">
+        select * from people where id = #{id}
+    </select>
+
+    <select id="selectPeopleById2" resultMap="peopleResultMap">
+        select
+            <include refid="peopleColumns"/>
+        from people where id = #{id}
+    </select>
+
+    <insert id="insertPeople" parameterType="People" useGeneratedKeys="true" keyProperty="id">
+        insert into people (name,age)
+        values (#{name,jdbcType=VARCHAR},#{age,jdbcType=INTEGER})
+    </insert>
+
+
+    <insert id="insertPeople2" parameterType="People">
+        <selectKey resultType="long" order="AFTER" keyProperty="id">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+        insert into people (name,age)
+        values (#{name,jdbcType=VARCHAR},#{age,jdbcType=INTEGER})
+    </insert>
+
+
+    <update id="updatePeople">
+        update people set
+        name = #{name},
+        age = #{age}
+        where id = #{id}
+    </update>
+
+    <delete id="deletePeople">
+        delete from people where id = #{id}
+    </delete>
+
+    <insert id="batchInsertPeople" parameterType="java.util.List" useGeneratedKeys="true" keyProperty="id">/**/
+        insert into people (name, age) values
+        <foreach item="people" collection="list" index="index" separator=",">
+            (
+             #{people.name},
+             #{people.age}
+             )
+        </foreach>
+    </insert>
+</mapper>
